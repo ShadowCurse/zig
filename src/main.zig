@@ -3678,7 +3678,7 @@ fn buildOutputType(
             });
             defer server.deinit();
 
-            const conn = try server.accept();
+            const conn = try server.accept(.{});
             defer conn.stream.close();
 
             try serve(

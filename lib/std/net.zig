@@ -1946,12 +1946,18 @@ pub const Server = struct {
 
     pub const AcceptError = posix.AcceptError;
 
-    /// Blocks until a client connects to the server. The returned `Connection` has
-    /// an open stream.
-    pub fn accept(s: *Server) AcceptError!Connection {
+    pub const AcceptOptions = struct {
+        force_nonblocking: bool = false,
+    };
+
+    /// Creates new `Connection` with an open stream.
+    pub fn accept(s: *Server, options: AcceptOptions) AcceptError!Connection {
+        const nonblock: u32 = if (options.force_nonblocking) posix.SOCK.NONBLOCK else 0;
+        const accept_flags = posix.SOCK.CLOEXEC | nonblock;
+
         var accepted_addr: Address = undefined;
         var addr_len: posix.socklen_t = @sizeOf(Address);
-        const fd = try posix.accept(s.stream.handle, &accepted_addr.any, &addr_len, posix.SOCK.CLOEXEC);
+        const fd = try posix.accept(s.stream.handle, &accepted_addr.any, &addr_len, accept_flags);
         return .{
             .stream = .{ .handle = fd },
             .address = accepted_addr,

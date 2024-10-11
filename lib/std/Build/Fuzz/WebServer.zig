@@ -79,7 +79,7 @@ pub fn run(ws: *WebServer) void {
         log.info("hint: pass --port {d} to use this same port next time", .{port});
 
     while (true) {
-        const connection = http_server.accept() catch |err| {
+        const connection = http_server.accept(.{}) catch |err| {
             log.err("failed to accept connection: {s}", .{@errorName(err)});
             return;
         };
